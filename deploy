@@ -1,0 +1,6 @@
+#!/bin/bash -e
+
+kubectl create secret generic certificate-store --from-file=sslcertificate.pfx
+
+minikube image load kestrelssl
+kubectl apply -f minikube.yml

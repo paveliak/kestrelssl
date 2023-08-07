@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kestrelssl
+spec:
+  ports:
+  - port: 443
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    app: kestrelssl
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kestrelssl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kestrelssl
+  template:
+    metadata:
+      labels:
+        app: kestrelssl
+    spec:
+      containers:
+      - name: kestrelssl
+        image: kestrelssl
+        args: ["/etc/certificates/sslcertificate.pfx"]
+        imagePullPolicy: Never
+        ports:
+        - name: http
+          containerPort: 5000
+          protocol: TCP
+        volumeMounts:
+        - name: certificate-store
+          mountPath: "/etc/certificates"
+          readOnly: true
+      volumes:
+        - name: certificate-store
+          secret:
+            secretName: certificate-store

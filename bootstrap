@@ -1,0 +1,28 @@
+#!/bin/bash -e
+
+if ! command -v az &> /dev/null
+then
+    curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+fi
+
+if ! command -v k9s &> /dev/null
+then
+    mkdir -p k9s-tmp \
+    && cd k9s-tmp \
+    && curl -Lo k9s.tar.gz "https://github.com/derailed/k9s/releases/download/v0.25.18/k9s_Linux_x86_64.tar.gz" \
+    && tar xzf k9s.tar.gz \
+    && chmod +x k9s \
+    && sudo mv k9s /usr/local/bin/k9s \
+    && cd .. \
+    && rm -rf k9s-tmp
+fi
+
+if ! command -v minikube &> /dev/null
+then
+    echo "Installing minikube..."
+    curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube
+    sudo mkdir -p /usr/local/bin/
+    sudo install minikube /usr/local/bin && rm ./minikube
+fi
+
+minikube start --network-plugin=cni --cni=calico
